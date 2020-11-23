@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6"
+            android:text="무엇을 추가할까!!"
+            android:gravity="center"
+            android:textSize="32dp"
+            tools:ignore="Suspicious0dp" />
+
+        <Button
+            android:id="@+id/to_translate"
+            android:layout_width="match_parent"
+            android:layout_height="9dp"
+            android:layout_weight="2"
+            android:text="번역기 가즈아"
+            android:textSize="32dp"
+            tools:ignore="Suspicious0dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
