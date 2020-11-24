@@ -12,13 +12,21 @@
         android:orientation="vertical"
         tools:layout_editor_absoluteX="214dp"
         tools:layout_editor_absoluteY="144dp">
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/design_default_color_secondary"
+            android:gravity="center"
+            />
         <EditText
             android:id="@+id/edit"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="4"
             android:textSize="32dp"
-            android:gravity="center"/>
+            android:gravity="center" />
         <TextView
             android:id="@+id/translate"
             android:layout_width="match_parent"

@@ -10,8 +10,11 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -28,11 +31,16 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     Handler mHandler = new Handler();
+    ArrayList<String> arrayList;
+    ArrayList<String> targetList;
+    ArrayAdapter<String> arrayAdapter;
+    static String target = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +50,39 @@ public class MainActivity extends AppCompatActivity {
         TextView text = (TextView)findViewById(R.id.translate);
         EditText edit = (EditText)findViewById(R.id.edit);
         Button move_btn = (Button)findViewById(R.id.move);
+
+        arrayList = new ArrayList<String>();
+        targetList = new ArrayList<String>();
+        arrayList.add("한국어");
+        targetList.add("ko");
+        arrayList.add("영어");
+        targetList.add("en");
+        arrayList.add("중국어-간체");
+        targetList.add("zh-CN");
+        arrayList.add("중국어-번체");
+        targetList.add("zh-TW");
+        arrayList.add("스페인어");
+        targetList.add("es");
+        arrayList.add("프랑스어");
+        targetList.add("fr");
+        arrayList.add("베트남어");
+        targetList.add("vi");
+        arrayList.add("태국어");
+        targetList.add("th");
+        arrayList.add("인도네시아어");
+        targetList.add("id");
+
+        arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, arrayList);
+        Spinner spinner = (Spinner)findViewById(R.id.spinner);
+        spinner.setAdapter(arrayAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                target = targetList.get(i);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView){}
+        });
 
         /*
         move_btn.setOnTouchListener(new View.OnTouchListener() {
@@ -185,9 +226,9 @@ public class MainActivity extends AppCompatActivity {
         if(kind == 1) {
             //src는 원 언어가 어느나라 것인지를 판별하기 위해 존재하는 변수
             if(src.equals("ko"))
-                postParams = "source=ko&target=en&text=" + text;
+                postParams = "source=ko&target=" + target + "&text=" + text;
             else {
-                postParams = "source=" + src + "&target=ko&text=" + text;
+                postParams = "source=" + src + "&target=" + target + "&text=" + text;
             }
         }
         else

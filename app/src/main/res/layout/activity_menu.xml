@@ -23,8 +23,17 @@
             android:id="@+id/to_translate"
             android:layout_width="match_parent"
             android:layout_height="9dp"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:text="번역기 가즈아"
+            android:textSize="32dp"
+            tools:ignore="Suspicious0dp" />
+
+        <Button
+            android:id="@+id/to_location"
+            android:layout_width="match_parent"
+            android:layout_height="9dp"
+            android:layout_weight="1"
+            android:text="위치정보 가즈아"
             android:textSize="32dp"
             tools:ignore="Suspicious0dp" />
     </LinearLayout>
