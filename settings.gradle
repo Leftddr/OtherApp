@@ -1,2 +1,3 @@
+include ':ODsayAndroidSDK1'
 include ':app'
 rootProject.name = "api_usage_java"
