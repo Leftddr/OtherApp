@@ -6,6 +6,9 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     
     <application
         android:allowBackup="true"
@@ -23,6 +26,12 @@
         </activity>
         <activity android:name=".MainActivity">
         </activity>
+        <activity android:name=".BusActivity">
+        </activity>
+        <receiver android:name=".BusReceiver"
+            android:enabled="true"></receiver>
+        <service android:name=".BusService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="9dp"
             android:layout_weight="1"
-            android:text="위치정보 가즈아"
+            android:text="버스 정보 가즈아"
             android:textSize="32dp"
             tools:ignore="Suspicious0dp" />
     </LinearLayout>

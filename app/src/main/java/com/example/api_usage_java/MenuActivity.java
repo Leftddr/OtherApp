@@ -34,8 +34,11 @@ public class MenuActivity extends AppCompatActivity {
                 case R.id.to_location:
                     System.out.println("switch screen");
                     String []permissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
-                    Permission(permissions);
-
+                    Permission1(permissions);
+                    Permission2(permissions);
+                    if(hasPermissions(getApplicationContext(), permissions))
+                        startActivityForResult(new Intent(getApplicationContext(), BusActivity.class), REQUEST_CODE);
+                    break;
             }
         }
     }
@@ -51,11 +54,26 @@ public class MenuActivity extends AppCompatActivity {
         return true;
     }
 
-    public void Permission(String[] permissions){
+    public void Permission1(String[] permissions){
         boolean permissionCheck = hasPermissions(this, permissions);
         if(!permissionCheck){
             Toast.makeText(this, "위치 권한 승인이 필요합니다.", Toast.LENGTH_LONG).show();
             if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+                Toast.makeText(this, "위치를 확인하기 위해서는 권한이 필요합니다. up", Toast.LENGTH_LONG).show();
+                ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE);
+            }
+            else{
+                Toast.makeText(this, "위치를 확인하기 위해서는 권한이 필요합니다. down", Toast.LENGTH_LONG).show();
+                ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE);
+            }
+        }
+    }
+
+    public void Permission2(String[] permissions){
+        boolean permissionCheck = hasPermissions(this, permissions);
+        if(!permissionCheck){
+            Toast.makeText(this, "위치 권한 승인이 필요합니다.", Toast.LENGTH_LONG).show();
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)){
                 Toast.makeText(this, "위치를 확인하기 위해서는 권한이 필요합니다. up", Toast.LENGTH_LONG).show();
                 ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE);
             }
