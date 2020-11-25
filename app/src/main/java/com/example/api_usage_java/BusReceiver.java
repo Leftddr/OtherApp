@@ -41,7 +41,7 @@ public class BusReceiver extends BroadcastReceiver {
         if(kind.equals("bus")) {
             builder.setSmallIcon(android.R.drawable.ic_menu_view);
             builder.setContentTitle("버스 도착 알림");
-            builder.setContentText("버스가 몇 분 안에 도착합니다.");
+            builder.setContentText("버스가 1 분 안에 도착합니다.");
 
             Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.bus);
             builder.setLargeIcon(bm);
@@ -49,7 +49,7 @@ public class BusReceiver extends BroadcastReceiver {
         else{
             builder.setSmallIcon(android.R.drawable.ic_menu_view);
             builder.setContentTitle("지하철 도착 알림");
-            builder.setContentText("지하철이 몇 분 안에 도착합니다.");
+            builder.setContentText("지하철이 1 분 안에 도착합니다.");
 
             Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.subway);
             builder.setLargeIcon(bm);

@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,9 +22,23 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.jar.Attributes;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,14 +46,41 @@ import androidx.recyclerview.widget.RecyclerView;
 public class SubwayActivity extends AppCompatActivity {
     ListView listview;
     SubwayAdapter adapter;
+    TextView time;
     boolean to_init = false;
     EditText edit;
+    String cur_station = "";
+    ArrayList<String> statNm = new ArrayList<String>();
+    ArrayList<String> bstatNm = new ArrayList<String>();
+    ArrayList<String> barvlDt = new ArrayList<String>();
+    ArrayList<String> arvlMsg2 = new ArrayList<String>();
+    ArrayList<String> arvlMsg3 = new ArrayList<String>();
+    String wait_time = "";
+    Handler mHandler = new Handler();
 
     class BtnOnClickListener implements Button.OnClickListener{
         @Override
         public void onClick(View v){
             switch(v.getId()){
                 case R.id.search:
+                    cur_station = edit.getText().toString();
+                    if(cur_station.equals("")) {
+                        Toast.makeText(getApplicationContext(), "값을 입력해 주세요", Toast.LENGTH_LONG).show();
+                        break;
+                    }
+                    Thread th = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            requestTime();
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    init_list();
+                                }
+                            });
+                        }
+                    });
+                    th.start();
                     break;
                 case R.id.to_home:
                     startActivity(new Intent(getApplicationContext(), MenuActivity.class));
@@ -63,10 +105,69 @@ public class SubwayActivity extends AppCompatActivity {
         Button search = (Button)findViewById(R.id.search);
         Button to_home = (Button)findViewById(R.id.to_home);
         Button alarm = (Button)findViewById(R.id.alarm);
+        edit = (EditText)findViewById(R.id.edit);
+        time = (TextView)findViewById(R.id.time);
         search.setOnClickListener(btnClick);
         to_home.setOnClickListener(btnClick);
         alarm.setOnClickListener(btnClick);
 
+    }
+
+    public void requestTime(){
+        StringBuilder urlBuilder = new StringBuilder("http://swopenapi.seoul.go.kr/api/subway/484456485771686431303644416c4769/xml/realtimeStationArrival/0/5/"); /*URL*/
+        try {
+            urlBuilder.append(URLEncoder.encode(cur_station, "UTF-8")); /*Service Key*/
+        } catch(UnsupportedEncodingException e){
+            e.printStackTrace();
+        }
+        try {
+            DocumentBuilderFactory dbFactoty = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactoty.newDocumentBuilder();
+            Document doc = dBuilder.parse(urlBuilder.toString());
+            doc.getDocumentElement().normalize();
+
+            NodeList statNms = doc.getElementsByTagName("statnNm");
+            NodeList bstatNms = doc.getElementsByTagName("bstatnNm");
+            NodeList barvlDts = doc.getElementsByTagName("barvlDt");
+            NodeList arvlMsgs2 = doc.getElementsByTagName("arvlMsg2");
+            NodeList arvlMsgs3 = doc.getElementsByTagName("arvlMsg3");
+
+            statNm.clear(); bstatNm.clear(); barvlDt.clear(); arvlMsg2.clear(); arvlMsg3.clear();
+            for(int i = 0 ; i < statNms.getLength() ; i++){
+                Node tmp1 = statNms.item(i);
+                Node tmp2 = bstatNms.item(i);
+                Node tmp3 = barvlDts.item(i);
+                Node tmp4 = arvlMsgs2.item(i);
+                Node tmp5 = arvlMsgs3.item(i);
+
+                Element el1 = (Element)tmp1;
+                Element el2 = (Element)tmp2;
+                Element el3 = (Element)tmp3;
+                Element el4 = (Element)tmp4;
+                Element el5 = (Element)tmp5;
+
+                statNm.add(el1.getTextContent());
+                bstatNm.add(el2.getTextContent());
+                barvlDt.add(el3.getTextContent());
+                arvlMsg2.add(el4.getTextContent());
+                arvlMsg3.add(el5.getTextContent());
+            }
+            if(statNm.size() <= 0){
+                statNm.add("역을 찾을 수 없습니다.");
+                bstatNm.add("역을 찾을 수 없습니다.");
+                barvlDt.add("-1");
+                arvlMsg2.add("역을 찾을 수 없습니다.");
+                arvlMsg3.add("역을 찾을 수 없습니다.");
+            }
+        } catch (ParserConfigurationException e){
+            System.out.println("Dom Parsing error");
+            e.printStackTrace();
+        } catch(SAXException e){
+            System.out.println("Dom Parsing error");
+            e.printStackTrace();
+        } catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
     public void setAlarm(PendingIntent pendingIntent){
@@ -81,11 +182,21 @@ public class SubwayActivity extends AppCompatActivity {
         calendar.set(Calendar.DAY_OF_WEEK, day);
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, min);
-        calendar.set(Calendar.SECOND, sec + 10);
-        System.out.println("-----------" + calendar.toString() + "---------------");
+        try{
+            if(Integer.parseInt(wait_time) <= 0 || Integer.parseInt(wait_time) - 60 <= 1){
+                Toast.makeText(getApplicationContext(), "곧 도착하거나 시간 정보가 없어 알람을 등록할 수 없습니다.", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }catch(NumberFormatException e){
+            Toast.makeText(getApplicationContext(), "시간 정보가 없어 알람을 등록할 수 없습니다.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+            return;
+        }
+        calendar.set(Calendar.SECOND, sec + Integer.parseInt(wait_time) - 60);
 
         //한번만 등록한다.
         alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        Toast.makeText(getApplicationContext(), "알람을 성공적으로 등록했습니다.", Toast.LENGTH_LONG).show();
     }
 
     public void init_touch(){
@@ -111,14 +222,16 @@ public class SubwayActivity extends AppCompatActivity {
     public void init_list(){
         listview = (ListView)findViewById(R.id.sublist);
         adapter = new SubwayAdapter();
-        for(int i = 0 ; i < 10 ; i++)
-            adapter.addItem(new SubwayItem("hi", "hello", "this", "is", "hi"));
+        for(int i = 0 ; i < statNm.size() ; i++)
+            adapter.addItem(new SubwayItem(statNm.get(i), bstatNm.get(i), barvlDt.get(i), arvlMsg2.get(i), arvlMsg3.get(i)));
         listview.setAdapter(adapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id){
                 SubwayItem item = (SubwayItem)adapter.getItem(position);
                 Toast.makeText(getApplicationContext(), item.getArvlMsg2(), Toast.LENGTH_LONG).show();
+                wait_time = item.getBarvlDt();
+                time.setText(wait_time);
             }
         });
     }
@@ -151,9 +264,9 @@ public class SubwayActivity extends AppCompatActivity {
             arvlMsg3 = (TextView)findViewById(R.id.arvlMsg3);
         }
 
-        void setStatnNm(String cur_stat) {statnNm.setText(cur_stat);}
-        void setBstatnNm(String end_stat) {bstatnNm.setText(end_stat);}
-        void setBarvlDt(String arrive_time) {barvlDt.setText(arrive_time);}
+        void setStatnNm(String cur_stat) {statnNm.setText("현재역 : " + cur_stat);}
+        void setBstatnNm(String end_stat) {bstatnNm.setText("종착역 : " + end_stat);}
+        void setBarvlDt(String arrive_time) {barvlDt.setText("도착 시간 : " + arrive_time + "sec");}
         void setArvlMsg2(String arrive1) {arvlMsg2.setText(arrive1);}
         void setArvlMsg3(String arrive2) {arvlMsg3.setText(arrive2);}
     }

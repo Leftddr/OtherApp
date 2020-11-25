@@ -77,7 +77,7 @@ public class BusActivity extends AppCompatActivity {
     ArrayList<String> stationName = new ArrayList<String>();
     ArrayList<String> stationId = new ArrayList<String>();
     ArrayList<String> busNum = new ArrayList<String>();
-    ArrayList<String> arriveTime = new ArrayList<String>();
+    ArrayList<String> arriveTime1 = new ArrayList<String>();
     ListView listView1;
     ListView listView2;
     arriveAdapter arriveadapter;
@@ -134,11 +134,20 @@ public class BusActivity extends AppCompatActivity {
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.DAY_OF_WEEK, day);
         calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, min + 1);
+        if(cur_time.equals("-1")){
+            Toast.makeText(getApplicationContext(), "시간 정보가 없으므로 알람을 등록할 수 없습니다.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(Integer.parseInt(cur_time) <= 1){
+            Toast.makeText(getApplicationContext(), "곧 도착하므로 알람을 등록할 필요가 없습니다.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        calendar.set(Calendar.MINUTE, min + Integer.parseInt(cur_time) - 1);
         System.out.println("-----------" + calendar.toString() + "---------------");
 
         //한번만 등록한다.
         alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        Toast.makeText(getApplicationContext(), "알람을 등록했습니다", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -184,6 +193,8 @@ public class BusActivity extends AppCompatActivity {
                     public void run() {
                         try {
                             System.out.println("-------------------------Request start--------------------------");
+                            busNum.clear();
+                            arriveTime1.clear();
                             requestTime();
                             mHandler.post(new Runnable(){
                                 @Override
@@ -192,7 +203,7 @@ public class BusActivity extends AppCompatActivity {
                                 }
                             });
                         } catch (IOException e){
-                            System.out.println("-------------------------" + stationId.toString());
+                            e.printStackTrace();
                             System.out.println("time 요청 에러 발생");
                         }
                     }
@@ -207,17 +218,27 @@ public class BusActivity extends AppCompatActivity {
         listView2 = (ListView)findViewById(R.id.arrivetime);
         arriveadapter = new arriveAdapter();
         for(int i = 0 ; i < busNum.size() ; i++) {
-            arriveadapter.addItem(new ArriveItem(busNum.get(i), arriveTime.get(i)));
+            arriveadapter.addItem(new ArriveItem(busNum.get(i), arriveTime1.get(i)));
             System.out.println(busNum.get(i));
         }
         listView2.setAdapter(arriveadapter);
         listView2.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id){
-                ArriveItem item = (ArriveItem) stationadapter.getItem(position);
+                ArriveItem item = (ArriveItem) arriveadapter.getItem(position);
                 TextView tmp = (TextView)findViewById(R.id.show_arrivetime);
                 tmp.setText(item.getNumber());
-                cur_time = item.getArrive();
+                cur_time = item.getArrive1();
+                if(cur_time.contains("분")){
+                    String []split_ = cur_time.split("분");
+                    cur_time = split_[0];
+                }
+                else if(cur_time.contains("곧 도착")){
+                    cur_time = "1";
+                }
+                else{
+                    cur_time = "-1";
+                }
             }
         });
     }
@@ -225,11 +246,11 @@ public class BusActivity extends AppCompatActivity {
     public void requestTime() throws IOException{
         StringBuilder urlBuilder = new StringBuilder("http://ws.bus.go.kr/api/rest/stationinfo/getLowStationByUid"); /*URL*/
         urlBuilder.append("?ServiceKey=" + api_key_ar); /*Service Key*/
-        urlBuilder.append("&" + URLEncoder.encode(cur_station_id,"UTF-8")); /**/
+        urlBuilder.append("&arsId=" + cur_station_id); /**/
+        System.out.println(urlBuilder.toString());
         URL url = new URL(urlBuilder.toString());
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        conn.setRequestProperty("Content-type", "application/json");
         System.out.println("Response code: " + conn.getResponseCode());
         BufferedReader rd;
         if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
@@ -242,6 +263,7 @@ public class BusActivity extends AppCompatActivity {
         while ((line = rd.readLine()) != null) {
             sb.append(line);
         }
+        System.out.println(sb.toString());
         rd.close();
         conn.disconnect();
         try{
@@ -249,33 +271,31 @@ public class BusActivity extends AppCompatActivity {
             DocumentBuilder dBuilder = dbFactoty.newDocumentBuilder();
             Document doc = dBuilder.parse(urlBuilder.toString());
             doc.getDocumentElement().normalize();
-            NodeList num1 = doc.getElementsByTagName("plainNo1");
-            NodeList num2 = doc.getElementsByTagName("plainNo2");
+            NodeList num = doc.getElementsByTagName("rtNm");
             NodeList arr1 = doc.getElementsByTagName("arrmsg1");
             NodeList arr2 = doc.getElementsByTagName("arrmsg2");
+            for(int i = 0 ; i < num.getLength() ; i++){
+                Node tmp1 = num.item(i);
+                Node tmp2 = arr1.item(i);
+                Node tmp3 = arr2.item(i);
 
-            Node tmp = num1.item(0);
-            Element element = (Element)tmp;
-            busNum.add(tmp.getTextContent());
+                Element el1 = (Element)tmp1;
+                Element el2 = (Element)tmp2;
+                Element el3 = (Element)tmp3;
 
-            tmp = num2.item(0);
-            element = (Element)tmp;
-            busNum.add(tmp.getTextContent());
+                busNum.add(el1.getTextContent());
+                //우선 처음 도착 정보만 넣는다.
+                arriveTime1.add(el2.getTextContent());
 
-            tmp = arr1.item(0);
-            element = (Element)tmp;
-            arriveTime.add(tmp.getTextContent());
-
-            tmp = arr2.item(0);
-            element = (Element)tmp;
-            arriveTime.add(tmp.getTextContent());
+                busNum.add(el1.getTextContent());
+                arriveTime1.add(el3.getTextContent());
+            }
 
         } catch (ParserConfigurationException e){
             System.out.println("Dom Parsing error");
         } catch( SAXException e){
             System.out.println("Dom Parsing error");
         }
-        System.out.println(sb.toString());
     }
 
     private Object requestBusStation(){
@@ -445,21 +465,21 @@ public class BusActivity extends AppCompatActivity {
             bus_number = (TextView)findViewById(R.id.bus_number);
         }
 
-        void setBusArrive(String cur_stat) {bus_arrive.setText(cur_stat);}
+        void setBusArrive1(String cur_stat) {bus_arrive.setText(cur_stat);}
         void setBusNumber(String cur_stat) {bus_number.setText(cur_stat);}
     }
 
     class ArriveItem{
-        private String arrive;
+        private String arrive1;
         private String number;
 
-        ArriveItem(String arrive, String number){
-            this.arrive = arrive;
+        ArriveItem(String number, String arrive1){
+            this.arrive1 = arrive1;
             this.number = number;
         }
 
-        String getArrive() {return this.arrive;}
-        void setArrive(String tmp) {this.arrive = tmp;}
+        String getArrive1() {return this.arrive1;}
+        void setArrive1(String tmp) {this.arrive1 = tmp;}
         String getNumber() {return this.number;}
         void setNumber(String tmp) {this.number = tmp;}
     }
@@ -479,7 +499,7 @@ public class BusActivity extends AppCompatActivity {
                 view = new busArriveView(getApplicationContext());
             }
             ArriveItem item = items.get(position);
-            view.setBusArrive(item.getArrive());
+            view.setBusArrive1(item.getArrive1());
             view.setBusNumber(item.getNumber());
             return view;
         }
