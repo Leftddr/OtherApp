@@ -39,6 +39,10 @@ public class MenuActivity extends AppCompatActivity {
                     if(hasPermissions(getApplicationContext(), permissions))
                         startActivityForResult(new Intent(getApplicationContext(), BusActivity.class), REQUEST_CODE);
                     break;
+                case R.id.to_subway:
+                    System.out.println("switch screen");
+                    startActivityForResult(new Intent(getApplicationContext(), SubwayActivity.class), REQUEST_CODE);
+                    break;
             }
         }
     }
@@ -131,6 +135,8 @@ public class MenuActivity extends AppCompatActivity {
         to_translate.setOnClickListener(btnClick);
         Button to_location = (Button)findViewById(R.id.to_location);
         to_location.setOnClickListener(btnClick);
+        Button to_subway = (Button)findViewById(R.id.to_subway);
+        to_subway.setOnClickListener(btnClick);
     }
 
     @Override

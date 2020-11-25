@@ -36,6 +36,14 @@
             android:text="버스 정보 가즈아"
             android:textSize="32dp"
             tools:ignore="Suspicious0dp" />
+        <Button
+            android:id="@+id/to_subway"
+            android:layout_width="match_parent"
+            android:layout_height="9dp"
+            android:layout_weight="1"
+            android:text="지하철 정보 가즈아"
+            android:textSize="32dp"
+            tools:ignore="Suspicious0dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

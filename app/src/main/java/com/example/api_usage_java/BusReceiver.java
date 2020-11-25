@@ -16,12 +16,12 @@ import androidx.core.app.NotificationCompat;
 public class BusReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent){
-        Intent alarmIntentServiceIntent = new Intent(context, BusService.class);
-        setNotification(context);
+        String kind = intent.getExtras().getString("kind");
+        setNotification(context, kind);
     }
 
     //노티피케이션 알람을 설정하는 함수
-    public void setNotification(Context context){
+    public void setNotification(Context context, String kind){
         //노티피케이션 알람 매니저를 생성
         NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
         //노티피케이션 건축가를 생성
@@ -38,16 +38,30 @@ public class BusReceiver extends BroadcastReceiver {
             builder = new NotificationCompat.Builder(context, null);
         }
 
-        builder.setSmallIcon(android.R.drawable.ic_menu_view);
-        builder.setContentTitle("버스 도착 알림");
-        builder.setContentText("버스가 몇 분 안에 도착합니다.");
+        if(kind.equals("bus")) {
+            builder.setSmallIcon(android.R.drawable.ic_menu_view);
+            builder.setContentTitle("버스 도착 알림");
+            builder.setContentText("버스가 몇 분 안에 도착합니다.");
 
-        Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.bus);
-        builder.setLargeIcon(bm);
+            Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.bus);
+            builder.setLargeIcon(bm);
+        }
+        else{
+            builder.setSmallIcon(android.R.drawable.ic_menu_view);
+            builder.setContentTitle("지하철 도착 알림");
+            builder.setContentText("지하철이 몇 분 안에 도착합니다.");
+
+            Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.subway);
+            builder.setLargeIcon(bm);
+        }
 
         //누르면 다시 이쪽으로 넘어오도록 인텐트를 생성
         //만들때 context를 넘겨줬기 문에 context로 구분이 가능한 듯 보인다.
-        Intent intent = new Intent(context, BusActivity.class);
+        Intent intent;
+        if(kind.equals("bus"))
+            intent = new Intent(context, BusActivity.class);
+        else
+            intent = new Intent(context, SubwayActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
 

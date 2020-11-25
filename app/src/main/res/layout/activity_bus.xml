@@ -7,21 +7,79 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/show_pos"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".5"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:text="내 위치를 모르겠습니다."/>
+
+        <ListView
+            android:id="@+id/station"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:background="@color/design_default_color_secondary"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:id="@+id/show_station"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".5"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:text="버스정류장을 선택해 주세요"/>
+
+        <ListView
+            android:id="@+id/arrivetime"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:background="@color/design_default_color_secondary"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:id="@+id/show_arrivetime"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".5"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:text="시간을 선택해 주세요"/>
+
+        <Button
+            android:id="@+id/position"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".5"
+            android:text="위치 가져오기"
+            android:textSize="16dp"/>
+        <Button
+            android:id="@+id/search"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".5"
+            android:text="검색"
+            android:textSize="16dp"/>
         <Button
             android:id="@+id/set_alarm"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="임시 알람"
-            android:textSize="32dp"/>
-
+            android:layout_weight=".5"
+            android:text="알람 설정"
+            android:textSize="16dp"/>
         <Button
             android:id="@+id/to_home"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight=".5"
             android:text="돌아가기"
-            android:textSize="32dp"/>
+            android:textSize="16dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
