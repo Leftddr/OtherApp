@@ -85,6 +85,7 @@ public class BusActivity extends AppCompatActivity {
     Handler mHandler = new Handler();
     String cur_station_id = "";
     String cur_time = "";
+    ProgressDialog customProgressDialog;
 
 
     class BtnOnClickListener implements Button.OnClickListener{
@@ -118,6 +119,7 @@ public class BusActivity extends AppCompatActivity {
                     th.start();
                     break;
                 case R.id.position:
+                    customProgressDialog.show();
                     get_position();
                     break;
             }
@@ -165,6 +167,7 @@ public class BusActivity extends AppCompatActivity {
         to_home.setOnClickListener(btnClick);
         search.setOnClickListener(btnClick);
         position.setOnClickListener(btnClick);
+        customProgressDialog = new ProgressDialog(this);
 
         odsayService = ODsayService.init(this, api_key);
         odsayService.setReadTimeout(5000);
@@ -368,6 +371,7 @@ public class BusActivity extends AppCompatActivity {
                 txt.setText("경도 : " + x + " 위도 : " + y);
             }
             lm.removeUpdates(this);
+            customProgressDialog.dismiss();
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {

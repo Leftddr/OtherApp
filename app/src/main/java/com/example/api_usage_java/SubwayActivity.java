@@ -2,15 +2,18 @@ package com.example.api_usage_java;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -47,6 +50,7 @@ public class SubwayActivity extends AppCompatActivity {
     ListView listview;
     SubwayAdapter adapter;
     TextView time;
+    LinearLayout ll;
     boolean to_init = false;
     EditText edit;
     String cur_station = "";
@@ -57,6 +61,8 @@ public class SubwayActivity extends AppCompatActivity {
     ArrayList<String> arvlMsg3 = new ArrayList<String>();
     String wait_time = "";
     Handler mHandler = new Handler();
+    SoftKeyboard mSoftKeyboard;
+    InputMethodManager im;
 
     class BtnOnClickListener implements Button.OnClickListener{
         @Override
@@ -107,10 +113,37 @@ public class SubwayActivity extends AppCompatActivity {
         Button alarm = (Button)findViewById(R.id.alarm);
         edit = (EditText)findViewById(R.id.edit);
         time = (TextView)findViewById(R.id.time);
+        ll = (LinearLayout)findViewById(R.id.parent);
         search.setOnClickListener(btnClick);
         to_home.setOnClickListener(btnClick);
         alarm.setOnClickListener(btnClick);
+        im = (InputMethodManager)getSystemService(Service.INPUT_METHOD_SERVICE);
+        mSoftKeyboard = new SoftKeyboard(ll, im);
+        keyboard_event();
+    }
 
+    public void keyboard_event(){
+        mSoftKeyboard.setSoftKeyboardCallback(new SoftKeyboard.SoftKeyboardChanged() {
+            @Override
+            public void onSoftKeyboardHide() {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        to_init = true;
+                    }
+                });
+            }
+
+            @Override
+            public void onSoftKeyboardShow() {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        to_init = true;
+                    }
+                });
+            }
+        });
     }
 
     public void requestTime(){

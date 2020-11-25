@@ -34,8 +34,9 @@ public class MenuActivity extends AppCompatActivity {
                 case R.id.to_location:
                     System.out.println("switch screen");
                     String []permissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
-                    Permission1(permissions);
-                    Permission2(permissions);
+                    String []text_ = new String[]{"위치(FINE)", "위치(COARSE)"};
+                    for(int i = 0 ; i < permissions.length ; i++)
+                        Permission(permissions[i], text_[i]);
                     if(hasPermissions(getApplicationContext(), permissions))
                         startActivityForResult(new Intent(getApplicationContext(), BusActivity.class), REQUEST_CODE);
                     break;
@@ -43,6 +44,18 @@ public class MenuActivity extends AppCompatActivity {
                     System.out.println("switch screen");
                     startActivityForResult(new Intent(getApplicationContext(), SubwayActivity.class), REQUEST_CODE);
                     break;
+                case R.id.to_shopping:
+                    startActivityForResult(new Intent(getApplicationContext(), ShopActivity.class), REQUEST_CODE);
+                    break;
+                case R.id.to_camera:
+                    String[] permissions_ = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO};
+                    String[] text = new String[]{"카메라", "외부 저장소 읽기", "외부 저장소에 쓰기", "녹음하기"};
+                    for(int i = 0 ; i < permissions_.length ; i++) {
+                        Permission(permissions_[i], text[i]);
+                    }
+                    if(hasPermissions(getApplicationContext(), permissions_)){
+                        startActivityForResult(new Intent(getApplicationContext(), CameraActivity.class), REQUEST_CODE);
+                    }
             }
         }
     }
@@ -56,6 +69,30 @@ public class MenuActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    public boolean hasPermissions_one(Context context, String permissions){
+        if(context != null && permissions != null){
+            if(ActivityCompat.checkSelfPermission(context, permissions) != PackageManager.PERMISSION_GRANTED){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void Permission(String permissions, String text){
+        boolean permissionCheck = hasPermissions_one(this, permissions);
+        if(!permissionCheck){
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this, permissions)){
+                    Toast.makeText(this, text + "의 권한이 필요합니다", Toast.LENGTH_LONG).show();
+                    String[] permission = new String[]{permissions};
+                    ActivityCompat.requestPermissions(this, permission, REQUEST_CODE);
+                }
+                else{
+                    String[] permission = new String[]{permissions};
+                    ActivityCompat.requestPermissions(this, permission, REQUEST_CODE);
+                }
+        }
     }
 
     public void Permission1(String[] permissions){
@@ -95,7 +132,7 @@ public class MenuActivity extends AppCompatActivity {
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     Toast.makeText(this, "승인이 허가되었습니다.", Toast.LENGTH_LONG).show();
                 } else{
-
+                    /*
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
                     alertDialog.setTitle("어플 권한");
                     alertDialog.setMessage("해당 앱의 원활한 기능을 이용하시려면 정보 > 권한에서 위치 권한을 허용해 주십시오");
@@ -119,6 +156,7 @@ public class MenuActivity extends AppCompatActivity {
                         }
                     });
                     alertDialog.show();
+                    */
                 }
         }
         return;
@@ -137,6 +175,10 @@ public class MenuActivity extends AppCompatActivity {
         to_location.setOnClickListener(btnClick);
         Button to_subway = (Button)findViewById(R.id.to_subway);
         to_subway.setOnClickListener(btnClick);
+        Button to_shopping = (Button)findViewById(R.id.to_shopping);
+        to_shopping.setOnClickListener(btnClick);
+        Button to_camera = (Button)findViewById(R.id.to_camera);
+        to_camera.setOnClickListener(btnClick);
     }
 
     @Override
