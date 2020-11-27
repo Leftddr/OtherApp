@@ -60,6 +60,14 @@
             android:text="촬영 가즈아"
             android:textSize="32dp"
             tools:ignore="Suspicious0dp" />
+        <Button
+            android:id="@+id/to_covid"
+            android:layout_width="match_parent"
+            android:layout_height="9dp"
+            android:layout_weight="1"
+            android:text="코로나 정보 가즈아"
+            android:textSize="32dp"
+            tools:ignore="Suspicious0dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

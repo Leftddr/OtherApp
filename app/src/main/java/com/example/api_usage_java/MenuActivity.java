@@ -24,10 +24,12 @@ public class MenuActivity extends AppCompatActivity {
         @Override
         public void onClick(View v){
             System.out.println("click");
+            Intent intent;
             switch(v.getId()){
                 case R.id.to_translate:
                     System.out.println("switch screen");
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     //intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivityForResult(intent, REQUEST_CODE);
                     break;
@@ -37,15 +39,22 @@ public class MenuActivity extends AppCompatActivity {
                     String []text_ = new String[]{"위치(FINE)", "위치(COARSE)"};
                     for(int i = 0 ; i < permissions.length ; i++)
                         Permission(permissions[i], text_[i]);
-                    if(hasPermissions(getApplicationContext(), permissions))
-                        startActivityForResult(new Intent(getApplicationContext(), BusActivity.class), REQUEST_CODE);
+                    if(hasPermissions(getApplicationContext(), permissions)) {
+                        intent = new Intent(getApplicationContext(), BusActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        startActivityForResult(intent, REQUEST_CODE);
+                    }
                     break;
                 case R.id.to_subway:
                     System.out.println("switch screen");
-                    startActivityForResult(new Intent(getApplicationContext(), SubwayActivity.class), REQUEST_CODE);
+                    intent = new Intent(getApplicationContext(), SubwayActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivityForResult(intent, REQUEST_CODE);
                     break;
                 case R.id.to_shopping:
-                    startActivityForResult(new Intent(getApplicationContext(), ShopActivity.class), REQUEST_CODE);
+                    intent = new Intent(getApplicationContext(), ShopActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivityForResult(intent, REQUEST_CODE);
                     break;
                 case R.id.to_camera:
                     String[] permissions_ = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO};
@@ -54,8 +63,16 @@ public class MenuActivity extends AppCompatActivity {
                         Permission(permissions_[i], text[i]);
                     }
                     if(hasPermissions(getApplicationContext(), permissions_)){
-                        startActivityForResult(new Intent(getApplicationContext(), CameraActivity.class), REQUEST_CODE);
+                        intent = new Intent(getApplicationContext(), CameraActivity.class);
+                        //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        startActivityForResult(intent, REQUEST_CODE);
                     }
+                    break;
+                case R.id.to_covid:
+                    intent = new Intent(getApplicationContext(), CovidActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivityForResult(intent, REQUEST_CODE);
+                    break;
             }
         }
     }
@@ -179,6 +196,8 @@ public class MenuActivity extends AppCompatActivity {
         to_shopping.setOnClickListener(btnClick);
         Button to_camera = (Button)findViewById(R.id.to_camera);
         to_camera.setOnClickListener(btnClick);
+        Button to_covid = (Button)findViewById(R.id.to_covid);
+        to_covid.setOnClickListener(btnClick);
     }
 
     @Override

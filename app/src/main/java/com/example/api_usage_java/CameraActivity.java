@@ -75,12 +75,15 @@ public class CameraActivity extends AppCompatActivity {
     ArrayList<String> words = new ArrayList<>();
     Handler mHandler = new Handler();
 
+    ProgressDialog customProgressDialog;
+
     String mCurrentPhotoPath = null;
     final static int REQUEST_TAKE_PHOTO = 1;
 
     class BtnOnClickListener implements Button.OnClickListener{
         @Override
         public void onClick(View v){
+            Intent intent;
             switch(v.getId()){
                 case R.id.start:
                     dispatchTakePictureIntent();
@@ -88,6 +91,7 @@ public class CameraActivity extends AppCompatActivity {
                 case R.id.translate:
                     if(text.getText().toString().equals("")){Toast.makeText(getApplicationContext(), "parsing된 단어가 없습니다.", Toast.LENGTH_LONG).show(); break;}
                     String parsingText = text.getText().toString();
+                    customProgressDialog.show();
                     Thread th = new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -109,6 +113,7 @@ public class CameraActivity extends AppCompatActivity {
                                     public void run(){
                                         try {
                                             text.setText(object.getJSONObject("message").getJSONObject("result").getString("translatedText"));
+                                            customProgressDialog.dismiss();
                                         }
 
                                         catch(JSONException e){
@@ -124,7 +129,9 @@ public class CameraActivity extends AppCompatActivity {
                     th.start();
                     break;
                 case R.id.to_home:
-                    startActivity(new Intent(getApplicationContext(), MenuActivity.class));
+                    intent = new Intent(getApplicationContext(), MenuActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivity(intent);
                     break;
             }
         }
@@ -143,6 +150,7 @@ public class CameraActivity extends AppCompatActivity {
         to_home.setOnClickListener(btnClick);
         translate = (Button)findViewById(R.id.translate);
         translate.setOnClickListener(btnClick);
+        customProgressDialog = new ProgressDialog(this);
 
         img = (ImageView)findViewById(R.id.img);
         text = (TextView)findViewById(R.id.text);
@@ -192,6 +200,7 @@ public class CameraActivity extends AppCompatActivity {
                                 bitmap = ImageDecoder.decodeBitmap(source);
                                 if(bitmap != null){
                                     img.setImageBitmap(bitmap); storeBitmap = bitmap;
+                                    customProgressDialog.show();
                                     Bitmap smallBitmap = resizeBitmap(storeBitmap);
                                     SaveBitmapToFileCache(smallBitmap, mCurrentPhotoPath);
                                     requestPost(ocr_url, new File(mCurrentPhotoPath));
@@ -204,6 +213,7 @@ public class CameraActivity extends AppCompatActivity {
                                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(file));
                                 if(bitmap != null){
                                     img.setImageBitmap(bitmap); storeBitmap = bitmap;
+                                    customProgressDialog.show();
                                     Bitmap smallBitmap = resizeBitmap(storeBitmap);
                                     SaveBitmapToFileCache(smallBitmap, mCurrentPhotoPath);
                                     requestPost(ocr_url, new File(mCurrentPhotoPath));
@@ -264,8 +274,10 @@ public class CameraActivity extends AppCompatActivity {
                         to_text += to_clear2 + " ";
                     }
                     text.setText(to_text);
+                    customProgressDialog.dismiss();
                 } catch (JSONException e){
                     e.printStackTrace();
+                    customProgressDialog.dismiss();
                 }
             }
         });

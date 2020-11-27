@@ -45,12 +45,14 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class SubwayActivity extends AppCompatActivity {
     ListView listview;
     SubwayAdapter adapter;
     TextView time;
     LinearLayout ll;
+    SwipeRefreshLayout swipe;
     boolean to_init = false;
     EditText edit;
     String cur_station = "";
@@ -67,6 +69,7 @@ public class SubwayActivity extends AppCompatActivity {
     class BtnOnClickListener implements Button.OnClickListener{
         @Override
         public void onClick(View v){
+            Intent intent;
             switch(v.getId()){
                 case R.id.search:
                     cur_station = edit.getText().toString();
@@ -89,7 +92,9 @@ public class SubwayActivity extends AppCompatActivity {
                     th.start();
                     break;
                 case R.id.to_home:
-                    startActivity(new Intent(getApplicationContext(), MenuActivity.class));
+                    intent = new Intent(getApplicationContext(), MenuActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivity(intent);
                     break;
                 case R.id.alarm:
                     Intent alarmBroadCast = new Intent(getApplicationContext(), BusReceiver.class);
@@ -111,6 +116,7 @@ public class SubwayActivity extends AppCompatActivity {
         Button search = (Button)findViewById(R.id.search);
         Button to_home = (Button)findViewById(R.id.to_home);
         Button alarm = (Button)findViewById(R.id.alarm);
+        swipe = (SwipeRefreshLayout)findViewById(R.id.swipe);
         edit = (EditText)findViewById(R.id.edit);
         time = (TextView)findViewById(R.id.time);
         ll = (LinearLayout)findViewById(R.id.parent);
@@ -120,6 +126,29 @@ public class SubwayActivity extends AppCompatActivity {
         im = (InputMethodManager)getSystemService(Service.INPUT_METHOD_SERVICE);
         mSoftKeyboard = new SoftKeyboard(ll, im);
         keyboard_event();
+        init_swipe();
+    }
+
+    public void init_swipe(){
+        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Thread th = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        requestTime();
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                init_list();
+                                swipe.setRefreshing(false);
+                            }
+                        });
+                    }
+                });
+                th.start();
+            }
+        });
     }
 
     public void keyboard_event(){

@@ -52,6 +52,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.Policy;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -66,12 +67,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class BusActivity extends AppCompatActivity {
     final int REQUEST_CODE = 101;
     final String api_key = "hntByA0IwEpLfxOfkDA2f6YMTYUtzksFlmYcYgsh53Y";
     final String api_key_ar = "aZyc1Eibkz0Spmkj4oqrF%2Bd8k1FK0maWmCZn4bor%2FDTRyfHz3cPaQ1wfh8DBWx8GwBuC4d19onos3Gw6WozScA%3D%3D";
     double x = -1.0, y = -1.0;
+    SwipeRefreshLayout swipe;
     LocationManager lm;
     ODsayService odsayService;
     ArrayList<String> stationName = new ArrayList<String>();
@@ -92,6 +95,7 @@ public class BusActivity extends AppCompatActivity {
         @Override
         public void onClick(View v){
             System.out.println("click");
+            Intent intent;
             switch(v.getId()){
                 case R.id.set_alarm:
                     System.out.println("setting alarm");
@@ -102,7 +106,9 @@ public class BusActivity extends AppCompatActivity {
                     break;
                 case R.id.to_home:
                     System.out.println("switch screen");
-                    startActivityForResult(new Intent(getApplicationContext(), MenuActivity.class), REQUEST_CODE);
+                    intent = new Intent(getApplicationContext(), MenuActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivity(intent);
                     break;
                 case R.id.search:
                     if(x == -1 || y == -1){
@@ -160,6 +166,7 @@ public class BusActivity extends AppCompatActivity {
         Button to_home = (Button)findViewById(R.id.to_home);
         Button search = (Button)findViewById(R.id.search);
         Button position = (Button)findViewById(R.id.position);
+        swipe = (SwipeRefreshLayout)findViewById(R.id.swipe);
 
         BtnOnClickListener btnClick = new BtnOnClickListener();
 
@@ -172,6 +179,34 @@ public class BusActivity extends AppCompatActivity {
         odsayService = ODsayService.init(this, api_key);
         odsayService.setReadTimeout(5000);
         odsayService.setConnectionTimeout(5000);
+
+        init_swipe();
+    }
+
+    public void init_swipe(){
+        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Thread th = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            requestTime();
+                        } catch (IOException e){
+                            e.printStackTrace();
+                        }
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                timeListInit();
+                                swipe.setRefreshing(false);
+                            }
+                        });
+                    }
+                });
+               th.start();
+            }
+        });
     }
 
     public void stationListInit(){
@@ -277,6 +312,8 @@ public class BusActivity extends AppCompatActivity {
             NodeList num = doc.getElementsByTagName("rtNm");
             NodeList arr1 = doc.getElementsByTagName("arrmsg1");
             NodeList arr2 = doc.getElementsByTagName("arrmsg2");
+            busNum.clear();
+            arriveTime1.clear();
             for(int i = 0 ; i < num.getLength() ; i++){
                 Node tmp1 = num.item(i);
                 Node tmp2 = arr1.item(i);
@@ -310,6 +347,7 @@ public class BusActivity extends AppCompatActivity {
                     JSONArray arr = oDsayData.getJson().getJSONObject("result").getJSONArray("station");
                     System.out.println("---------------------------" + arr.toString());
                     stationName.clear();
+                    stationId.clear();
                     for(int i = 0 ; i < arr.length() ; i++){
                         JSONObject tmp = arr.getJSONObject(i);
                         String stat_name = tmp.getString("stationName");
@@ -345,14 +383,14 @@ public class BusActivity extends AppCompatActivity {
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
         ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) return;
 
-        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         if(location == null){
             location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                     1000, 1, gpsLocationListener);
         }
         else {
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, gpsLocationListener);
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
         }
     }
 

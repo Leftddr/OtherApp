@@ -15,12 +15,17 @@
             android:gravity="center"
             android:textSize="32dp"
             android:descendantFocusability="beforeDescendants"/>
-        <ListView
-            android:id="@+id/sublist"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3"
-            android:gravity="center" />
+            android:layout_weight="3">
+            <ListView
+                android:id="@+id/sublist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         <TextView
             android:id="@+id/time"
             android:layout_width="match_parent"

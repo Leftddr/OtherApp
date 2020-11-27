@@ -80,6 +80,7 @@ public class ShopActivity  extends AppCompatActivity {
     class BtnOnClickListener implements Button.OnClickListener{
         @Override
         public void onClick(View v){
+            Intent intent;
             switch(v.getId()){
                 case R.id.search:
                     customProgressDialog.show();
@@ -103,7 +104,9 @@ public class ShopActivity  extends AppCompatActivity {
                     api_thread.start();
                     break;
                 case R.id.to_home:
-                    startActivity(new Intent(getApplicationContext(), MenuActivity.class));
+                    intent = new Intent(getApplicationContext(), MenuActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivity(intent);
                     break;
             }
         }
