@@ -81,6 +81,7 @@ public class BusActivity extends AppCompatActivity {
     ArrayList<String> stationId = new ArrayList<String>();
     ArrayList<String> busNum = new ArrayList<String>();
     ArrayList<String> arriveTime1 = new ArrayList<String>();
+    ArrayList<Double> xs = new ArrayList<>(), ys = new ArrayList<>();
     ListView listView1;
     ListView listView2;
     arriveAdapter arriveadapter;
@@ -128,6 +129,23 @@ public class BusActivity extends AppCompatActivity {
                     customProgressDialog.show();
                     get_position();
                     break;
+                case R.id.to_map:
+                    intent = new Intent(getApplicationContext(), MapActivity.class);
+                    if(x == -1 || y == -1){
+                        Toast.makeText(getApplicationContext(), "현재 위치를 가져와 주세요", Toast.LENGTH_LONG).show();
+                        break;
+                    }
+                    if(xs.size() == 0 || ys.size() == 0){
+                        Toast.makeText(getApplicationContext(), "주변 버스 정류장을 가져와 주세요", Toast.LENGTH_LONG).show();
+                        break;
+                    }
+                    intent.putExtra("init_x", x);
+                    intent.putExtra("init_y", y);
+                    intent.putExtra("xs", xs);
+                    intent.putExtra("ys", ys);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivityForResult(intent, REQUEST_CODE);
+                    break;
             }
         }
     }
@@ -159,13 +177,60 @@ public class BusActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        System.out.println("ENTER RIGHT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        if(resultCode == RESULT_OK){
+            //요청이 맞게 돌아왔다.
+            System.out.println("RESULTOK RIGHT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            if(requestCode == REQUEST_CODE){
+                System.out.println("REQUESTCODE RIGHT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                double xs_ = data.getDoubleExtra("choice_x", -1);
+                double ys_ = data.getDoubleExtra("choice_y", -1);
+                for(int i = 0 ; i < xs.size() ; i++){
+                    if(xs.get(i) == xs_ && ys.get(i) == ys_){
+                        cur_station_id = stationId.get(i);
+                        break;
+                    }
+                }
+                System.out.println("-----------------------------------+" + xs_ + "---------------------------+" + ys_);
+                if(xs_ != -1 && ys_ != -1) {
+                    Thread th = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("REQUEST TIME RIGHT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                            try {
+                                requestTime();
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        timeListInit();
+                                    }
+                                });
+                            } catch (IOException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    th.start();
+                }
+            }
+        }
+        else if(resultCode == RESULT_CANCELED){
+            Toast.makeText(getApplicationContext(), "취소 되었습니다.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bus);
+
         Button set_alarm = (Button)findViewById(R.id.set_alarm);
         Button to_home = (Button)findViewById(R.id.to_home);
         Button search = (Button)findViewById(R.id.search);
         Button position = (Button)findViewById(R.id.position);
+        Button to_map = (Button)findViewById(R.id.to_map);
         swipe = (SwipeRefreshLayout)findViewById(R.id.swipe);
 
         BtnOnClickListener btnClick = new BtnOnClickListener();
@@ -174,6 +239,7 @@ public class BusActivity extends AppCompatActivity {
         to_home.setOnClickListener(btnClick);
         search.setOnClickListener(btnClick);
         position.setOnClickListener(btnClick);
+        to_map.setOnClickListener(btnClick);
         customProgressDialog = new ProgressDialog(this);
 
         odsayService = ODsayService.init(this, api_key);
@@ -348,6 +414,7 @@ public class BusActivity extends AppCompatActivity {
                     System.out.println("---------------------------" + arr.toString());
                     stationName.clear();
                     stationId.clear();
+                    xs.clear(); ys.clear();
                     for(int i = 0 ; i < arr.length() ; i++){
                         JSONObject tmp = arr.getJSONObject(i);
                         String stat_name = tmp.getString("stationName");
@@ -355,6 +422,8 @@ public class BusActivity extends AppCompatActivity {
                         String arsId = tmp.getString("arsID");
                         String [] split_ = arsId.split("-");
                         stationId.add(split_[0] + split_[1]);
+                        xs.add(tmp.getDouble("x"));
+                        ys.add(tmp.getDouble("y"));
                     }
                     mHandler.post(new Runnable() {
                         @Override

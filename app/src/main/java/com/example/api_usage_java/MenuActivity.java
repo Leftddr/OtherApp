@@ -41,7 +41,7 @@ public class MenuActivity extends AppCompatActivity {
                         Permission(permissions[i], text_[i]);
                     if(hasPermissions(getApplicationContext(), permissions)) {
                         intent = new Intent(getApplicationContext(), BusActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                         startActivityForResult(intent, REQUEST_CODE);
                     }
                     break;

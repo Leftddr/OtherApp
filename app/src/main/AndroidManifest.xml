@@ -27,6 +27,9 @@
         android:theme="@style/Theme.Api_usage_java"
         android:windowSoftInputMode="adjustResize"
         android:usesCleartextTraffic="true">
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value=""/>
         <provider
             android:authorities="com.example.api_usage_java.fileprovider"
             android:name="androidx.core.content.FileProvider"
@@ -52,6 +55,8 @@
         <activity android:name=".ShopActivity">
         </activity>
         <activity android:name=".CameraActivity">
+        </activity>
+        <activity android:name=".MapActivity">
         </activity>
         <activity android:name=".CovidActivity"></activity>
         <receiver android:name=".BusReceiver"
