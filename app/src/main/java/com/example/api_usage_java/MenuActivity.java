@@ -25,6 +25,8 @@ public class MenuActivity extends AppCompatActivity {
         public void onClick(View v){
             System.out.println("click");
             Intent intent;
+            String[] permissions_;
+            String[] text;
             switch(v.getId()){
                 case R.id.to_translate:
                     System.out.println("switch screen");
@@ -57,8 +59,8 @@ public class MenuActivity extends AppCompatActivity {
                     startActivityForResult(intent, REQUEST_CODE);
                     break;
                 case R.id.to_camera:
-                    String[] permissions_ = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO};
-                    String[] text = new String[]{"카메라", "외부 저장소 읽기", "외부 저장소에 쓰기", "녹음하기"};
+                    permissions_ = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO};
+                    text = new String[]{"카메라", "외부 저장소 읽기", "외부 저장소에 쓰기", "녹음하기"};
                     for(int i = 0 ; i < permissions_.length ; i++) {
                         Permission(permissions_[i], text[i]);
                     }
@@ -72,6 +74,21 @@ public class MenuActivity extends AppCompatActivity {
                     intent = new Intent(getApplicationContext(), CovidActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     startActivityForResult(intent, REQUEST_CODE);
+                    break;
+                case R.id.to_audio:
+                    permissions_ = new String[]{Manifest.permission.RECORD_AUDIO};
+                    text = new String[]{"녹음하기"};
+                    for(int i = 0 ; i < permissions_.length ; i++){
+                        Permission(permissions_[i], text[i]);
+                    }
+                    if(hasPermissions(getApplicationContext(), permissions_)) {
+                        intent = new Intent(getApplicationContext(), AudioActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        startActivityForResult(intent, REQUEST_CODE);
+                    }
+                    else{
+                        Toast.makeText(getApplicationContext(), "녹음권한이 승인되어야 합니다.",Toast.LENGTH_LONG).show();
+                    }
                     break;
             }
         }
@@ -198,6 +215,8 @@ public class MenuActivity extends AppCompatActivity {
         to_camera.setOnClickListener(btnClick);
         Button to_covid = (Button)findViewById(R.id.to_covid);
         to_covid.setOnClickListener(btnClick);
+        Button to_audio = (Button)findViewById(R.id.to_audio);
+        to_audio.setOnClickListener(btnClick);
     }
 
     @Override

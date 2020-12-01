@@ -61,6 +61,14 @@
             android:textSize="32dp"
             tools:ignore="Suspicious0dp" />
         <Button
+            android:id="@+id/to_audio"
+            android:layout_width="match_parent"
+            android:layout_height="9dp"
+            android:layout_weight="1"
+            android:text="음성 텍스트 가즈아"
+            android:textSize="32dp"
+            tools:ignore="Suspicious0dp" />
+        <Button
             android:id="@+id/to_covid"
             android:layout_width="match_parent"
             android:layout_height="9dp"

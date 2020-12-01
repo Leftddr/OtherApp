@@ -120,7 +120,7 @@ public class BusActivity extends AppCompatActivity {
                         @Override
                         public void run(){
                             Object result = requestBusStation();
-                            odsayService.requestPointSearch(String.valueOf(x), String.valueOf(y), String.valueOf(300), String.valueOf(1), (OnResultCallbackListener) result);
+                            odsayService.requestPointSearch(String.valueOf(x), String.valueOf(y), String.valueOf(500), String.valueOf(1), (OnResultCallbackListener) result);
                         }
                     });
                     th.start();

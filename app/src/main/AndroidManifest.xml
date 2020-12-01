@@ -58,6 +58,8 @@
         </activity>
         <activity android:name=".MapActivity">
         </activity>
+        <activity android:name=".AudioActivity">
+        </activity>
         <activity android:name=".CovidActivity"></activity>
         <receiver android:name=".BusReceiver"
             android:enabled="true"></receiver>
