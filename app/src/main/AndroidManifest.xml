@@ -29,7 +29,7 @@
         android:usesCleartextTraffic="true">
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
-            android:value=""/>
+            android:value="n3gce9qog0"/>
         <provider
             android:authorities="com.example.api_usage_java.fileprovider"
             android:name="androidx.core.content.FileProvider"
